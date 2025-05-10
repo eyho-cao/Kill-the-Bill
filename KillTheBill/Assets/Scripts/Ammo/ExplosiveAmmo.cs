@@ -41,14 +41,17 @@ public class ExplosiveAmmo : BaseAmmo
 
     void Update()
     {
-        if (_currentTime <= 0 && !_isReadyToExplode)
-        {
-            _isReadyToExplode = true;
-            Explode();
-            return;
-        }
+        if(_isWeaponOnFlight) {
 
-        _currentTime -= Time.deltaTime;
+            if (_currentTime <= 0 && !_isReadyToExplode)
+            {
+                _isReadyToExplode = true;
+                Explode();
+                return;
+            }
+
+            _currentTime -= Time.deltaTime;
+        }
         UpdateText(((int)_currentTime).ToString());
     }
 
@@ -64,8 +67,14 @@ public class ExplosiveAmmo : BaseAmmo
                 if ((layerMask & (1 << coll.gameObject.layer)) != 0)
                 {
                     Rigidbody rb = coll.GetComponentInParent<Rigidbody>();
-                    rb.AddExplosionForce(_explosionForce, transform.position, _explosionRadius);
+                    if(rb) {
+                        rb.AddExplosionForce(_explosionForce, transform.position, _explosionRadius);
+                    }
                 }
+            }
+            if(coll.gameObject.tag == "Enemy"){
+                BaseEnemy enemy = coll.gameObject.GetComponentInParent<BaseEnemy>();
+                enemy.HandleDamaged(1);
             }
         }
 
